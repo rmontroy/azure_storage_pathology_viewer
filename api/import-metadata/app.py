@@ -50,7 +50,7 @@ def lambda_handler(event, _context):
     key = unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
     logger.info('Filename = %s', key)
     try:
-        with openslide.OpenSlide(f'/vsis3/{bucket}/{key}') as osr:
+        with openslide.OpenSlide(f's3://{bucket}/{key}') as osr:
 
             # get image id from tiff tags; create output folder
             image_id = osr.properties.get(PROPERTY_NAME_APERIO_IMAGEID)

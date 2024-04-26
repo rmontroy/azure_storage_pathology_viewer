@@ -1,0 +1,967 @@
+Submodule crt/aws-crt-cpp contains modified content
+diff --git a/crt/aws-crt-cpp/CMakeLists.txt b/crt/aws-crt-cpp/CMakeLists.txt
+index ec6d172..8b206a0 100644
+--- a/crt/aws-crt-cpp/CMakeLists.txt
++++ b/crt/aws-crt-cpp/CMakeLists.txt
+@@ -1,5 +1,9 @@
+ cmake_minimum_required(VERSION 3.1)
+ 
++if (POLICY CMP0069)
++    cmake_policy(SET CMP0069 NEW) # Enable LTO/IPO if available in the compiler, see AwsCFlags
++endif()
++
+ if(POLICY CMP0077)
+     cmake_policy(SET CMP0077 NEW)
+ endif()
+Submodule crt/s2n contains modified content
+diff --git a/crt/aws-crt-cpp/crt/s2n/CMakeLists.txt b/crt/aws-crt-cpp/crt/s2n/CMakeLists.txt
+index 5713558d..0274932a 100644
+--- a/crt/aws-crt-cpp/crt/s2n/CMakeLists.txt
++++ b/crt/aws-crt-cpp/crt/s2n/CMakeLists.txt
+@@ -147,8 +147,10 @@ endif ()
+ 
+ if(BUILD_TESTING AND BUILD_SHARED_LIBS)
+     target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=default)
+-else()
++elseif(BUILD_SHARED_LIBS)
+     target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden -DS2N_EXPORTS)
++else()
++    target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden)
+ endif()
+ 
+ if(S2N_LTO)
+diff --git a/generated/src/aws-cpp-sdk-s3/include/aws/s3/S3Client.h b/generated/src/aws-cpp-sdk-s3/include/aws/s3/S3Client.h
+index 86228a803..dd8bca72e 100644
+--- a/generated/src/aws-cpp-sdk-s3/include/aws/s3/S3Client.h
++++ b/generated/src/aws-cpp-sdk-s3/include/aws/s3/S3Client.h
+@@ -39,7 +39,7 @@ namespace Aws
+     /**
+      * <p/>
+      */
+-    class AWS_S3_API S3Client : public Aws::Client::AWSXMLClient, public Aws::Client::ClientWithAsyncTemplateMethods<S3Client>
++    class AWS_S3_API S3Client final : public Aws::Client::AWSXMLClient, public Aws::Client::ClientWithAsyncTemplateMethods<S3Client>
+     {
+     public:
+         typedef Aws::Client::AWSXMLClient BASECLASS;
+@@ -133,7 +133,7 @@ namespace Aws
+                  Aws::S3::US_EAST_1_REGIONAL_ENDPOINT_OPTION USEast1RegionalEndPointOption = Aws::S3::US_EAST_1_REGIONAL_ENDPOINT_OPTION::NOT_SET);
+ 
+         /* End of legacy constructors due deprecation */
+-        virtual ~S3Client();
++        ~S3Client();
+ 
+         /**
+          * <p>This operation aborts a multipart upload. After a multipart upload is
+@@ -191,7 +191,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/AbortMultipartUpload">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::AbortMultipartUploadOutcome AbortMultipartUpload(const Model::AbortMultipartUploadRequest& request) const;
++        Model::AbortMultipartUploadOutcome AbortMultipartUpload(const Model::AbortMultipartUploadRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for AbortMultipartUpload that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -313,7 +313,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CompleteMultipartUpload">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::CompleteMultipartUploadOutcome CompleteMultipartUpload(const Model::CompleteMultipartUploadRequest& request) const;
++        Model::CompleteMultipartUploadOutcome CompleteMultipartUpload(const Model::CompleteMultipartUploadRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for CompleteMultipartUpload that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -448,17 +448,17 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CopyObject">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::CopyObjectOutcome CopyObject(const Model::CopyObjectRequest& request) const;
++        Model::CopyObjectOutcome CopyObject(const Model::CopyObjectRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for CopyObject that returns a future to the operation so that it can be executed in parallel to other requests.
+          */
+-        virtual Model::CopyObjectOutcomeCallable CopyObjectCallable(const Model::CopyObjectRequest& request) const;
++        Model::CopyObjectOutcomeCallable CopyObjectCallable(const Model::CopyObjectRequest& request) const;
+ 
+         /**
+          * An Async wrapper for CopyObject that queues the request into a thread executor and triggers associated callback when operation has finished.
+          */
+-        virtual void CopyObjectAsync(const Model::CopyObjectRequest& request, const CopyObjectResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const;
++        void CopyObjectAsync(const Model::CopyObjectRequest& request, const CopyObjectResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const;
+ 
+         /**
+          *  <p>This action creates an Amazon S3 bucket. To create an Amazon S3 on
+@@ -566,7 +566,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CreateBucket">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::CreateBucketOutcome CreateBucket(const Model::CreateBucketRequest& request) const;
++        Model::CreateBucketOutcome CreateBucket(const Model::CreateBucketRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for CreateBucket that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -746,7 +746,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CreateMultipartUpload">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::CreateMultipartUploadOutcome CreateMultipartUpload(const Model::CreateMultipartUploadRequest& request) const;
++        Model::CreateMultipartUploadOutcome CreateMultipartUpload(const Model::CreateMultipartUploadRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for CreateMultipartUpload that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -841,7 +841,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/CreateSession">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::CreateSessionOutcome CreateSession(const Model::CreateSessionRequest& request) const;
++        Model::CreateSessionOutcome CreateSession(const Model::CreateSessionRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for CreateSession that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -897,7 +897,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucket">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::DeleteBucketOutcome DeleteBucket(const Model::DeleteBucketRequest& request) const;
++        Model::DeleteBucketOutcome DeleteBucket(const Model::DeleteBucketRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucket that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -941,7 +941,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketAnalyticsConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketAnalyticsConfigurationOutcome DeleteBucketAnalyticsConfiguration(const Model::DeleteBucketAnalyticsConfigurationRequest& request) const;
++        Model::DeleteBucketAnalyticsConfigurationOutcome DeleteBucketAnalyticsConfiguration(const Model::DeleteBucketAnalyticsConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketAnalyticsConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -978,7 +978,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketCors">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketCorsOutcome DeleteBucketCors(const Model::DeleteBucketCorsRequest& request) const;
++        Model::DeleteBucketCorsOutcome DeleteBucketCors(const Model::DeleteBucketCorsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketCors that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1022,7 +1022,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketEncryption">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketEncryptionOutcome DeleteBucketEncryption(const Model::DeleteBucketEncryptionRequest& request) const;
++        Model::DeleteBucketEncryptionOutcome DeleteBucketEncryption(const Model::DeleteBucketEncryptionRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketEncryption that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1072,7 +1072,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketIntelligentTieringConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketIntelligentTieringConfigurationOutcome DeleteBucketIntelligentTieringConfiguration(const Model::DeleteBucketIntelligentTieringConfigurationRequest& request) const;
++        Model::DeleteBucketIntelligentTieringConfigurationOutcome DeleteBucketIntelligentTieringConfiguration(const Model::DeleteBucketIntelligentTieringConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketIntelligentTieringConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1116,7 +1116,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketInventoryConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketInventoryConfigurationOutcome DeleteBucketInventoryConfiguration(const Model::DeleteBucketInventoryConfigurationRequest& request) const;
++        Model::DeleteBucketInventoryConfigurationOutcome DeleteBucketInventoryConfiguration(const Model::DeleteBucketInventoryConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketInventoryConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1158,7 +1158,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketLifecycle">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketLifecycleOutcome DeleteBucketLifecycle(const Model::DeleteBucketLifecycleRequest& request) const;
++        Model::DeleteBucketLifecycleOutcome DeleteBucketLifecycle(const Model::DeleteBucketLifecycleRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketLifecycle that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1205,7 +1205,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketMetricsConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketMetricsConfigurationOutcome DeleteBucketMetricsConfiguration(const Model::DeleteBucketMetricsConfigurationRequest& request) const;
++        Model::DeleteBucketMetricsConfigurationOutcome DeleteBucketMetricsConfiguration(const Model::DeleteBucketMetricsConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketMetricsConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1241,7 +1241,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketOwnershipControls">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketOwnershipControlsOutcome DeleteBucketOwnershipControls(const Model::DeleteBucketOwnershipControlsRequest& request) const;
++        Model::DeleteBucketOwnershipControlsOutcome DeleteBucketOwnershipControls(const Model::DeleteBucketOwnershipControlsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketOwnershipControls that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1311,7 +1311,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketPolicy">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketPolicyOutcome DeleteBucketPolicy(const Model::DeleteBucketPolicyRequest& request) const;
++        Model::DeleteBucketPolicyOutcome DeleteBucketPolicy(const Model::DeleteBucketPolicyRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketPolicy that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1354,7 +1354,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketReplication">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketReplicationOutcome DeleteBucketReplication(const Model::DeleteBucketReplicationRequest& request) const;
++        Model::DeleteBucketReplicationOutcome DeleteBucketReplication(const Model::DeleteBucketReplicationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketReplication that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1388,7 +1388,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketTagging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketTaggingOutcome DeleteBucketTagging(const Model::DeleteBucketTaggingRequest& request) const;
++        Model::DeleteBucketTaggingOutcome DeleteBucketTagging(const Model::DeleteBucketTaggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketTagging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1431,7 +1431,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteBucketWebsite">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteBucketWebsiteOutcome DeleteBucketWebsite(const Model::DeleteBucketWebsiteRequest& request) const;
++        Model::DeleteBucketWebsiteOutcome DeleteBucketWebsite(const Model::DeleteBucketWebsiteRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteBucketWebsite that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1537,7 +1537,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteObject">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::DeleteObjectOutcome DeleteObject(const Model::DeleteObjectRequest& request) const;
++        Model::DeleteObjectOutcome DeleteObject(const Model::DeleteObjectRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteObject that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1575,7 +1575,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteObjectTagging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteObjectTaggingOutcome DeleteObjectTagging(const Model::DeleteObjectTaggingRequest& request) const;
++        Model::DeleteObjectTaggingOutcome DeleteObjectTagging(const Model::DeleteObjectTaggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteObjectTagging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1678,7 +1678,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeleteObjects">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeleteObjectsOutcome DeleteObjects(const Model::DeleteObjectsRequest& request) const;
++        Model::DeleteObjectsOutcome DeleteObjects(const Model::DeleteObjectsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeleteObjects that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1721,7 +1721,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/DeletePublicAccessBlock">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::DeletePublicAccessBlockOutcome DeletePublicAccessBlock(const Model::DeletePublicAccessBlockRequest& request) const;
++        Model::DeletePublicAccessBlockOutcome DeletePublicAccessBlock(const Model::DeletePublicAccessBlockRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for DeletePublicAccessBlock that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1771,7 +1771,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketAccelerateConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketAccelerateConfigurationOutcome GetBucketAccelerateConfiguration(const Model::GetBucketAccelerateConfigurationRequest& request) const;
++        Model::GetBucketAccelerateConfigurationOutcome GetBucketAccelerateConfiguration(const Model::GetBucketAccelerateConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketAccelerateConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1819,7 +1819,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketAcl">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::GetBucketAclOutcome GetBucketAcl(const Model::GetBucketAclRequest& request) const;
++        Model::GetBucketAclOutcome GetBucketAcl(const Model::GetBucketAclRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketAcl that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1865,7 +1865,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketAnalyticsConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketAnalyticsConfigurationOutcome GetBucketAnalyticsConfiguration(const Model::GetBucketAnalyticsConfigurationRequest& request) const;
++        Model::GetBucketAnalyticsConfigurationOutcome GetBucketAnalyticsConfiguration(const Model::GetBucketAnalyticsConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketAnalyticsConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1909,7 +1909,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketCors">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketCorsOutcome GetBucketCors(const Model::GetBucketCorsRequest& request) const;
++        Model::GetBucketCorsOutcome GetBucketCors(const Model::GetBucketCorsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketCors that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -1953,7 +1953,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketEncryption">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketEncryptionOutcome GetBucketEncryption(const Model::GetBucketEncryptionRequest& request) const;
++        Model::GetBucketEncryptionOutcome GetBucketEncryption(const Model::GetBucketEncryptionRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketEncryption that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2002,7 +2002,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketIntelligentTieringConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketIntelligentTieringConfigurationOutcome GetBucketIntelligentTieringConfiguration(const Model::GetBucketIntelligentTieringConfigurationRequest& request) const;
++        Model::GetBucketIntelligentTieringConfigurationOutcome GetBucketIntelligentTieringConfiguration(const Model::GetBucketIntelligentTieringConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketIntelligentTieringConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2046,7 +2046,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketInventoryConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketInventoryConfigurationOutcome GetBucketInventoryConfiguration(const Model::GetBucketInventoryConfigurationRequest& request) const;
++        Model::GetBucketInventoryConfigurationOutcome GetBucketInventoryConfiguration(const Model::GetBucketInventoryConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketInventoryConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2105,7 +2105,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketLifecycleConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketLifecycleConfigurationOutcome GetBucketLifecycleConfiguration(const Model::GetBucketLifecycleConfigurationRequest& request) const;
++        Model::GetBucketLifecycleConfigurationOutcome GetBucketLifecycleConfiguration(const Model::GetBucketLifecycleConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketLifecycleConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2151,7 +2151,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketLocation">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketLocationOutcome GetBucketLocation(const Model::GetBucketLocationRequest& request) const;
++        Model::GetBucketLocationOutcome GetBucketLocation(const Model::GetBucketLocationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketLocation that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2183,7 +2183,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketLogging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketLoggingOutcome GetBucketLogging(const Model::GetBucketLoggingRequest& request) const;
++        Model::GetBucketLoggingOutcome GetBucketLogging(const Model::GetBucketLoggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketLogging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2230,7 +2230,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketMetricsConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketMetricsConfigurationOutcome GetBucketMetricsConfiguration(const Model::GetBucketMetricsConfigurationRequest& request) const;
++        Model::GetBucketMetricsConfigurationOutcome GetBucketMetricsConfiguration(const Model::GetBucketMetricsConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketMetricsConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2279,7 +2279,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketNotificationConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketNotificationConfigurationOutcome GetBucketNotificationConfiguration(const Model::GetBucketNotificationConfigurationRequest& request) const;
++        Model::GetBucketNotificationConfigurationOutcome GetBucketNotificationConfiguration(const Model::GetBucketNotificationConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketNotificationConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2315,7 +2315,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketOwnershipControls">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketOwnershipControlsOutcome GetBucketOwnershipControls(const Model::GetBucketOwnershipControlsRequest& request) const;
++        Model::GetBucketOwnershipControlsOutcome GetBucketOwnershipControls(const Model::GetBucketOwnershipControlsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketOwnershipControls that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2391,7 +2391,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketPolicy">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketPolicyOutcome GetBucketPolicy(const Model::GetBucketPolicyRequest& request) const;
++        Model::GetBucketPolicyOutcome GetBucketPolicy(const Model::GetBucketPolicyRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketPolicy that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2434,7 +2434,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketPolicyStatus">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketPolicyStatusOutcome GetBucketPolicyStatus(const Model::GetBucketPolicyStatusRequest& request) const;
++        Model::GetBucketPolicyStatusOutcome GetBucketPolicyStatus(const Model::GetBucketPolicyStatusRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketPolicyStatus that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2480,7 +2480,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketReplication">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketReplicationOutcome GetBucketReplication(const Model::GetBucketReplicationRequest& request) const;
++        Model::GetBucketReplicationOutcome GetBucketReplication(const Model::GetBucketReplicationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketReplication that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2512,7 +2512,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketRequestPayment">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketRequestPaymentOutcome GetBucketRequestPayment(const Model::GetBucketRequestPaymentRequest& request) const;
++        Model::GetBucketRequestPaymentOutcome GetBucketRequestPayment(const Model::GetBucketRequestPaymentRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketRequestPayment that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2549,7 +2549,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketTagging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketTaggingOutcome GetBucketTagging(const Model::GetBucketTaggingRequest& request) const;
++        Model::GetBucketTaggingOutcome GetBucketTagging(const Model::GetBucketTaggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketTagging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2586,7 +2586,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketVersioning">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketVersioningOutcome GetBucketVersioning(const Model::GetBucketVersioningRequest& request) const;
++        Model::GetBucketVersioningOutcome GetBucketVersioning(const Model::GetBucketVersioningRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketVersioning that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2626,7 +2626,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetBucketWebsite">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetBucketWebsiteOutcome GetBucketWebsite(const Model::GetBucketWebsiteRequest& request) const;
++        Model::GetBucketWebsiteOutcome GetBucketWebsite(const Model::GetBucketWebsiteRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetBucketWebsite that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2763,17 +2763,17 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObject">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::GetObjectOutcome GetObject(const Model::GetObjectRequest& request) const;
++        Model::GetObjectOutcome GetObject(const Model::GetObjectRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObject that returns a future to the operation so that it can be executed in parallel to other requests.
+          */
+-        virtual Model::GetObjectOutcomeCallable GetObjectCallable(const Model::GetObjectRequest& request) const;
++        Model::GetObjectOutcomeCallable GetObjectCallable(const Model::GetObjectRequest& request) const;
+ 
+         /**
+          * An Async wrapper for GetObject that queues the request into a thread executor and triggers associated callback when operation has finished.
+          */
+-        virtual void GetObjectAsync(const Model::GetObjectRequest& request, const GetObjectResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const;
++        void GetObjectAsync(const Model::GetObjectRequest& request, const GetObjectResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const;
+ 
+         /**
+          *  <p>This operation is not supported by directory buckets.</p> 
+@@ -2804,7 +2804,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectAcl">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::GetObjectAclOutcome GetObjectAcl(const Model::GetObjectAclRequest& request) const;
++        Model::GetObjectAclOutcome GetObjectAcl(const Model::GetObjectAclRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObjectAcl that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2938,7 +2938,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectAttributes">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetObjectAttributesOutcome GetObjectAttributes(const Model::GetObjectAttributesRequest& request) const;
++        Model::GetObjectAttributesOutcome GetObjectAttributes(const Model::GetObjectAttributesRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObjectAttributes that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -2970,7 +2970,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectLegalHold">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetObjectLegalHoldOutcome GetObjectLegalHold(const Model::GetObjectLegalHoldRequest& request) const;
++        Model::GetObjectLegalHoldOutcome GetObjectLegalHold(const Model::GetObjectLegalHoldRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObjectLegalHold that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3003,7 +3003,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectLockConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetObjectLockConfigurationOutcome GetObjectLockConfiguration(const Model::GetObjectLockConfigurationRequest& request) const;
++        Model::GetObjectLockConfigurationOutcome GetObjectLockConfiguration(const Model::GetObjectLockConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObjectLockConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3035,7 +3035,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectRetention">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetObjectRetentionOutcome GetObjectRetention(const Model::GetObjectRetentionRequest& request) const;
++        Model::GetObjectRetentionOutcome GetObjectRetention(const Model::GetObjectRetentionRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObjectRetention that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3079,7 +3079,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectTagging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetObjectTaggingOutcome GetObjectTagging(const Model::GetObjectTaggingRequest& request) const;
++        Model::GetObjectTaggingOutcome GetObjectTagging(const Model::GetObjectTaggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObjectTagging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3113,7 +3113,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetObjectTorrent">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetObjectTorrentOutcome GetObjectTorrent(const Model::GetObjectTorrentRequest& request) const;
++        Model::GetObjectTorrentOutcome GetObjectTorrent(const Model::GetObjectTorrentRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetObjectTorrent that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3162,7 +3162,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/GetPublicAccessBlock">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::GetPublicAccessBlockOutcome GetPublicAccessBlock(const Model::GetPublicAccessBlockRequest& request) const;
++        Model::GetPublicAccessBlockOutcome GetPublicAccessBlock(const Model::GetPublicAccessBlockRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for GetPublicAccessBlock that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3234,7 +3234,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/HeadBucket">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::HeadBucketOutcome HeadBucket(const Model::HeadBucketRequest& request) const;
++        Model::HeadBucketOutcome HeadBucket(const Model::HeadBucketRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for HeadBucket that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3350,7 +3350,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/HeadObject">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::HeadObjectOutcome HeadObject(const Model::HeadObjectRequest& request) const;
++        Model::HeadObjectOutcome HeadObject(const Model::HeadObjectRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for HeadObject that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3402,7 +3402,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketAnalyticsConfigurations">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListBucketAnalyticsConfigurationsOutcome ListBucketAnalyticsConfigurations(const Model::ListBucketAnalyticsConfigurationsRequest& request) const;
++        Model::ListBucketAnalyticsConfigurationsOutcome ListBucketAnalyticsConfigurations(const Model::ListBucketAnalyticsConfigurationsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListBucketAnalyticsConfigurations that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3451,7 +3451,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketIntelligentTieringConfigurations">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListBucketIntelligentTieringConfigurationsOutcome ListBucketIntelligentTieringConfigurations(const Model::ListBucketIntelligentTieringConfigurationsRequest& request) const;
++        Model::ListBucketIntelligentTieringConfigurationsOutcome ListBucketIntelligentTieringConfigurations(const Model::ListBucketIntelligentTieringConfigurationsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListBucketIntelligentTieringConfigurations that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3503,7 +3503,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketInventoryConfigurations">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListBucketInventoryConfigurationsOutcome ListBucketInventoryConfigurations(const Model::ListBucketInventoryConfigurationsRequest& request) const;
++        Model::ListBucketInventoryConfigurationsOutcome ListBucketInventoryConfigurations(const Model::ListBucketInventoryConfigurationsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListBucketInventoryConfigurations that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3557,7 +3557,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBucketMetricsConfigurations">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListBucketMetricsConfigurationsOutcome ListBucketMetricsConfigurations(const Model::ListBucketMetricsConfigurationsRequest& request) const;
++        Model::ListBucketMetricsConfigurationsOutcome ListBucketMetricsConfigurations(const Model::ListBucketMetricsConfigurationsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListBucketMetricsConfigurations that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3588,7 +3588,7 @@ namespace Aws
+          * <a href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListBuckets">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListBucketsOutcome ListBuckets() const;
++        Model::ListBucketsOutcome ListBuckets() const;
+ 
+         /**
+          * A Callable wrapper for ListBuckets that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3635,7 +3635,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListDirectoryBuckets">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListDirectoryBucketsOutcome ListDirectoryBuckets(const Model::ListDirectoryBucketsRequest& request) const;
++        Model::ListDirectoryBucketsOutcome ListDirectoryBuckets(const Model::ListDirectoryBucketsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListDirectoryBuckets that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3738,7 +3738,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListMultipartUploads">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListMultipartUploadsOutcome ListMultipartUploads(const Model::ListMultipartUploadsRequest& request) const;
++        Model::ListMultipartUploadsOutcome ListMultipartUploads(const Model::ListMultipartUploadsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListMultipartUploads that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3781,7 +3781,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjectVersions">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListObjectVersionsOutcome ListObjectVersions(const Model::ListObjectVersionsRequest& request) const;
++        Model::ListObjectVersionsOutcome ListObjectVersions(const Model::ListObjectVersionsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListObjectVersions that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3826,7 +3826,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjects">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::ListObjectsOutcome ListObjects(const Model::ListObjectsRequest& request) const;
++        Model::ListObjectsOutcome ListObjects(const Model::ListObjectsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListObjects that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -3913,7 +3913,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListObjectsV2">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::ListObjectsV2Outcome ListObjectsV2(const Model::ListObjectsV2Request& request) const;
++        Model::ListObjectsV2Outcome ListObjectsV2(const Model::ListObjectsV2Request& request) const;
+ 
+         /**
+          * A Callable wrapper for ListObjectsV2 that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4003,7 +4003,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/ListParts">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::ListPartsOutcome ListParts(const Model::ListPartsRequest& request) const;
++        Model::ListPartsOutcome ListParts(const Model::ListPartsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for ListParts that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4056,7 +4056,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketAccelerateConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketAccelerateConfigurationOutcome PutBucketAccelerateConfiguration(const Model::PutBucketAccelerateConfigurationRequest& request) const;
++        Model::PutBucketAccelerateConfigurationOutcome PutBucketAccelerateConfiguration(const Model::PutBucketAccelerateConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketAccelerateConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4171,7 +4171,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketAcl">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::PutBucketAclOutcome PutBucketAcl(const Model::PutBucketAclRequest& request) const;
++        Model::PutBucketAclOutcome PutBucketAcl(const Model::PutBucketAclRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketAcl that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4241,7 +4241,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketAnalyticsConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketAnalyticsConfigurationOutcome PutBucketAnalyticsConfiguration(const Model::PutBucketAnalyticsConfigurationRequest& request) const;
++        Model::PutBucketAnalyticsConfigurationOutcome PutBucketAnalyticsConfiguration(const Model::PutBucketAnalyticsConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketAnalyticsConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4302,7 +4302,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketCors">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketCorsOutcome PutBucketCors(const Model::PutBucketCorsRequest& request) const;
++        Model::PutBucketCorsOutcome PutBucketCors(const Model::PutBucketCorsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketCors that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4358,7 +4358,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketEncryption">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketEncryptionOutcome PutBucketEncryption(const Model::PutBucketEncryptionRequest& request) const;
++        Model::PutBucketEncryptionOutcome PutBucketEncryption(const Model::PutBucketEncryptionRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketEncryption that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4420,7 +4420,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketIntelligentTieringConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketIntelligentTieringConfigurationOutcome PutBucketIntelligentTieringConfiguration(const Model::PutBucketIntelligentTieringConfigurationRequest& request) const;
++        Model::PutBucketIntelligentTieringConfigurationOutcome PutBucketIntelligentTieringConfiguration(const Model::PutBucketIntelligentTieringConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketIntelligentTieringConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4503,7 +4503,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketInventoryConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketInventoryConfigurationOutcome PutBucketInventoryConfiguration(const Model::PutBucketInventoryConfigurationRequest& request) const;
++        Model::PutBucketInventoryConfigurationOutcome PutBucketInventoryConfiguration(const Model::PutBucketInventoryConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketInventoryConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4582,7 +4582,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketLifecycleConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketLifecycleConfigurationOutcome PutBucketLifecycleConfiguration(const Model::PutBucketLifecycleConfigurationRequest& request) const;
++        Model::PutBucketLifecycleConfigurationOutcome PutBucketLifecycleConfiguration(const Model::PutBucketLifecycleConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketLifecycleConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4655,7 +4655,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketLogging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketLoggingOutcome PutBucketLogging(const Model::PutBucketLoggingRequest& request) const;
++        Model::PutBucketLoggingOutcome PutBucketLogging(const Model::PutBucketLoggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketLogging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4707,7 +4707,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketMetricsConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketMetricsConfigurationOutcome PutBucketMetricsConfiguration(const Model::PutBucketMetricsConfigurationRequest& request) const;
++        Model::PutBucketMetricsConfigurationOutcome PutBucketMetricsConfiguration(const Model::PutBucketMetricsConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketMetricsConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4775,7 +4775,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketNotificationConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketNotificationConfigurationOutcome PutBucketNotificationConfiguration(const Model::PutBucketNotificationConfigurationRequest& request) const;
++        Model::PutBucketNotificationConfigurationOutcome PutBucketNotificationConfiguration(const Model::PutBucketNotificationConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketNotificationConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4812,7 +4812,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketOwnershipControls">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketOwnershipControlsOutcome PutBucketOwnershipControls(const Model::PutBucketOwnershipControlsRequest& request) const;
++        Model::PutBucketOwnershipControlsOutcome PutBucketOwnershipControls(const Model::PutBucketOwnershipControlsRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketOwnershipControls that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4891,7 +4891,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketPolicy">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketPolicyOutcome PutBucketPolicy(const Model::PutBucketPolicyRequest& request) const;
++        Model::PutBucketPolicyOutcome PutBucketPolicy(const Model::PutBucketPolicyRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketPolicy that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -4973,7 +4973,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketReplication">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketReplicationOutcome PutBucketReplication(const Model::PutBucketReplicationRequest& request) const;
++        Model::PutBucketReplicationOutcome PutBucketReplication(const Model::PutBucketReplicationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketReplication that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5009,7 +5009,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketRequestPayment">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketRequestPaymentOutcome PutBucketRequestPayment(const Model::PutBucketRequestPaymentRequest& request) const;
++        Model::PutBucketRequestPaymentOutcome PutBucketRequestPayment(const Model::PutBucketRequestPaymentRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketRequestPayment that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5074,7 +5074,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketTagging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketTaggingOutcome PutBucketTagging(const Model::PutBucketTaggingRequest& request) const;
++        Model::PutBucketTaggingOutcome PutBucketTagging(const Model::PutBucketTaggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketTagging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5128,7 +5128,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketVersioning">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketVersioningOutcome PutBucketVersioning(const Model::PutBucketVersioningRequest& request) const;
++        Model::PutBucketVersioningOutcome PutBucketVersioning(const Model::PutBucketVersioningRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketVersioning that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5190,7 +5190,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutBucketWebsite">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutBucketWebsiteOutcome PutBucketWebsite(const Model::PutBucketWebsiteRequest& request) const;
++        Model::PutBucketWebsiteOutcome PutBucketWebsite(const Model::PutBucketWebsiteRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutBucketWebsite that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5292,17 +5292,17 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObject">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::PutObjectOutcome PutObject(const Model::PutObjectRequest& request) const;
++        Model::PutObjectOutcome PutObject(const Model::PutObjectRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutObject that returns a future to the operation so that it can be executed in parallel to other requests.
+          */
+-        virtual Model::PutObjectOutcomeCallable PutObjectCallable(const Model::PutObjectRequest& request) const;
++        Model::PutObjectOutcomeCallable PutObjectCallable(const Model::PutObjectRequest& request) const;
+ 
+         /**
+          * An Async wrapper for PutObject that queues the request into a thread executor and triggers associated callback when operation has finished.
+          */
+-        virtual void PutObjectAsync(const Model::PutObjectRequest& request, const PutObjectResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const;
++        void PutObjectAsync(const Model::PutObjectRequest& request, const PutObjectResponseReceivedHandler& handler, const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr) const;
+ 
+         /**
+          *  <p>This operation is not supported by directory buckets.</p> 
+@@ -5401,7 +5401,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectAcl">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::PutObjectAclOutcome PutObjectAcl(const Model::PutObjectAclRequest& request) const;
++        Model::PutObjectAclOutcome PutObjectAcl(const Model::PutObjectAclRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutObjectAcl that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5431,7 +5431,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectLegalHold">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutObjectLegalHoldOutcome PutObjectLegalHold(const Model::PutObjectLegalHoldRequest& request) const;
++        Model::PutObjectLegalHoldOutcome PutObjectLegalHold(const Model::PutObjectLegalHoldRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutObjectLegalHold that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5468,7 +5468,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectLockConfiguration">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutObjectLockConfigurationOutcome PutObjectLockConfiguration(const Model::PutObjectLockConfigurationRequest& request) const;
++        Model::PutObjectLockConfigurationOutcome PutObjectLockConfiguration(const Model::PutObjectLockConfigurationRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutObjectLockConfiguration that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5501,7 +5501,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectRetention">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutObjectRetentionOutcome PutObjectRetention(const Model::PutObjectRetentionRequest& request) const;
++        Model::PutObjectRetentionOutcome PutObjectRetention(const Model::PutObjectRetentionRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutObjectRetention that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5559,7 +5559,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutObjectTagging">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutObjectTaggingOutcome PutObjectTagging(const Model::PutObjectTaggingRequest& request) const;
++        Model::PutObjectTaggingOutcome PutObjectTagging(const Model::PutObjectTaggingRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutObjectTagging that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5608,7 +5608,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/PutPublicAccessBlock">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::PutPublicAccessBlockOutcome PutPublicAccessBlock(const Model::PutPublicAccessBlockRequest& request) const;
++        Model::PutPublicAccessBlockOutcome PutPublicAccessBlock(const Model::PutPublicAccessBlockRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for PutPublicAccessBlock that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5747,7 +5747,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/RestoreObject">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::RestoreObjectOutcome RestoreObject(const Model::RestoreObjectRequest& request) const;
++        Model::RestoreObjectOutcome RestoreObject(const Model::RestoreObjectRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for RestoreObject that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5847,7 +5847,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/SelectObjectContent">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::SelectObjectContentOutcome SelectObjectContent(Model::SelectObjectContentRequest& request) const;
++        Model::SelectObjectContentOutcome SelectObjectContent(Model::SelectObjectContentRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for SelectObjectContent that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -5982,7 +5982,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/UploadPart">AWS API
+          * Reference</a></p>
+          */
+-        virtual Model::UploadPartOutcome UploadPart(const Model::UploadPartRequest& request) const;
++        Model::UploadPartOutcome UploadPart(const Model::UploadPartRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for UploadPart that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -6112,7 +6112,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/UploadPartCopy">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::UploadPartCopyOutcome UploadPartCopy(const Model::UploadPartCopyRequest& request) const;
++        Model::UploadPartCopyOutcome UploadPartCopy(const Model::UploadPartCopyRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for UploadPartCopy that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -6179,7 +6179,7 @@ namespace Aws
+          * href="http://docs.aws.amazon.com/goto/WebAPI/s3-2006-03-01/WriteGetObjectResponse">AWS
+          * API Reference</a></p>
+          */
+-        virtual Model::WriteGetObjectResponseOutcome WriteGetObjectResponse(const Model::WriteGetObjectResponseRequest& request) const;
++        Model::WriteGetObjectResponseOutcome WriteGetObjectResponse(const Model::WriteGetObjectResponseRequest& request) const;
+ 
+         /**
+          * A Callable wrapper for WriteGetObjectResponse that returns a future to the operation so that it can be executed in parallel to other requests.
+@@ -6282,7 +6282,7 @@ namespace Aws
+                                                  uint64_t expirationInSeconds = MAX_EXPIRATION_SECONDS);
+ 
+ 
+-        virtual bool MultipartUploadSupported() const;
++        bool MultipartUploadSupported() const;
+ 
+         void OverrideEndpoint(const Aws::String& endpoint);
+         std::shared_ptr<S3EndpointProviderBase>& accessEndpointProvider();
+diff --git a/src/aws-cpp-sdk-core/include/aws/core/external/tinyxml2/tinyxml2.h b/src/aws-cpp-sdk-core/include/aws/core/external/tinyxml2/tinyxml2.h
+index 3721ed1f9..9d455b491 100644
+--- a/src/aws-cpp-sdk-core/include/aws/core/external/tinyxml2/tinyxml2.h
++++ b/src/aws-cpp-sdk-core/include/aws/core/external/tinyxml2/tinyxml2.h
+@@ -79,7 +79,7 @@ This file has been modified from its original version by Amazon:
+             #define TINYXML2_LIB __declspec(dllimport)
+         #endif // AWS_CORE_EXPORTS
+     #endif // USE_IMPORT_EXPORT
+-#elif __GNUC__ >= 4
++#elif __GNUC__ >= 4 && defined(TINYXML2_EXPORTS)
+     #define TINYXML2_LIB __attribute__((visibility("default")))
+ #endif // _WIN32
+ 

@@ -93,9 +93,9 @@ def info_handler(event, _context):
     else:
         try:
             osr = open_slides[image_id] = openslide.open_slide(
-                f'/vsis3/{BUCKET_NAME}/{image_id}.svs')
+                f's3://{BUCKET_NAME}/{image_id}.svs')
         except openslide.OpenSlideError:
-            logger.exception('Exception opening /vsis3/{%s}/{%s}.svs', BUCKET_NAME, image_id)
+            logger.exception('Exception opening s3://%s/%s.svs', BUCKET_NAME, image_id)
             return respond(f"Unsupported or missing image file with ID '{image_id}'", 404)
     width, height = osr.dimensions
     downsamples = list(map(round, osr.level_downsamples))
@@ -126,9 +126,9 @@ def properties_handler(event, _context):
     else:
         try:
             osr = open_slides[image_id] = openslide.open_slide(
-                f'/vsis3/{BUCKET_NAME}/{image_id}.svs')
+                f's3://{BUCKET_NAME}/{image_id}.svs')
         except openslide.OpenSlideError:
-            logger.exception('Exception opening /vsis3/{%s}/{%s}.svs', BUCKET_NAME, image_id)
+            logger.exception('Exception opening s3://%s/%s.svs', BUCKET_NAME, image_id)
             return respond(f"Unsupported or missing image file with ID '{image_id}'", 404)
     properties = dict(osr.properties)
     return respond(json.dumps(properties), content_type='application/json')
@@ -143,9 +143,9 @@ def label_handler(event, _context):
     else:
         try:
             osr = open_slides[image_id] = openslide.open_slide(
-                f'/vsis3/{BUCKET_NAME}/{image_id}.svs')
+                f's3://{BUCKET_NAME}/{image_id}.svs')
         except openslide.OpenSlideError:
-            logger.exception('Exception opening /vsis3/{%s}/{%s}.svs', BUCKET_NAME, image_id)
+            logger.exception('Exception opening s3://%s/%s.svs', BUCKET_NAME, image_id)
             return respond(f"Unsupported or missing image file with ID '{image_id}'", 404)
     image = osr.associated_images.get('label').convert('RGB')
     buf = BytesIO()
@@ -163,9 +163,9 @@ def thumbnail_handler(event, _context):
     else:
         try:
             osr = open_slides[image_id] = openslide.open_slide(
-                f'/vsis3/{BUCKET_NAME}/{image_id}.svs')
+                f's3://{BUCKET_NAME}/{image_id}.svs')
         except openslide.OpenSlideError:
-            logger.exception('Exception opening /vsis3/{%s}/{%s}.svs', BUCKET_NAME, image_id)
+            logger.exception('Exception opening s3://%s/%s.svs', BUCKET_NAME, image_id)
             return respond(f"Unsupported or missing image file with ID '{image_id}'", 404)
     image = osr.associated_images.get('thumbnail').convert('RGB')
     buf = BytesIO()
@@ -194,9 +194,9 @@ def tile_handler(event, _context):
     else:
         try:
             osr = open_slides[image_id] = openslide.open_slide(
-                f'/vsis3/{BUCKET_NAME}/{image_id}.svs')
+                f's3://{BUCKET_NAME}/{image_id}.svs')
         except openslide.OpenSlideError:
-            logger.exception('Exception opening /vsis3/{%s}/{%s}.svs', BUCKET_NAME, image_id)
+            logger.exception('Exception opening s3://%s/%s.svs', BUCKET_NAME, image_id)
             return respond(f"Unsupported or missing image file with ID '{image_id}'", 404)
 
 
@@ -209,11 +209,11 @@ def tile_handler(event, _context):
         tile_im = osr.read_region(
             (int(region.group('x')), int(region.group('y'))), level, region_size)
     except openslide.OpenSlideError:
-        logger.exception('Exception reading /vsis3/{%s}/{%s}.svs', BUCKET_NAME, image_id)
+        logger.exception('Exception reading s3://%s/%s.svs', BUCKET_NAME, image_id)
         return respond(f"Error reading image file with ID '{image_id}'", 404)
 
     if tile_im.size != size:
-        tile_im.thumbnail(size, Image.ANTIALIAS)
+        tile_im.thumbnail(size, Image.LANCZOS)
     color_transform = get_color_transform(osr.properties.get(ICC_PROFILE_PROPERTY_NAME))
     if color_transform:
         tile_im = ImageCms.applyTransform(tile_im, color_transform)
@@ -222,3 +222,14 @@ def tile_handler(event, _context):
     tile_im.save(buf, 'jpeg', quality=TILE_QUALITY)
     tile_im.close()
     return respond(base64.b64encode(buf.getvalue()), content_type='image/jpeg')
+
+def exit_gracefully(signum, frame):
+    r"""
+    SIGTERM Handler: https://docs.aws.amazon.com/lambda/latest/operatorguide/static-initialization.html
+    Listening for os signals that can be handled,reference: https://docs.aws.amazon.com/lambda/latest/dg/runtimes-extensions-api.html
+    Termination Signals: https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
+    """
+    print("[runtime] SIGTERM received")
+    open_slides.clear()  # each OpenSlide calls close() from __del__()
+
+signal.signal(signal.SIGTERM, exit_gracefully)

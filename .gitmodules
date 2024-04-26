@@ -1,0 +1,3 @@
+[submodule "api/layers/OpenSlide/tiffS3"]
+	path = api/layers/OpenSlide/tiffS3
+	url = https://github.com/rmontroy/tiffS3

@@ -53,10 +53,7 @@ Conditions:
 
 Globals:
   Function:
-    Runtime: python3.9
-    Environment:
-      Variables:
-        GDAL_DISABLE_READDIR_ON_OPEN: 'YES'
+    Runtime: python3.12
 
 Resources:
   CodeSigningConfig:
